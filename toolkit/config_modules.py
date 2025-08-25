@@ -488,9 +488,17 @@ class TrainConfig:
         # will toggle all datasets to cache text embeddings
         self.cache_text_embeddings: bool = kwargs.get('cache_text_embeddings', False)
         # for swapping which parameters are trained during training
-        self.do_paramiter_swapping = kwargs.get('do_paramiter_swapping', False)
+        # legacy naming is kept for backwards compatibility
+        self.do_paramiter_swapping = kwargs.get(
+            'do_paramiter_swapping', kwargs.get('block_swap', False)
+        )
         # 0.1 is 10% of the parameters active at a time lower is less vram, higher is more
-        self.paramiter_swapping_factor = kwargs.get('paramiter_swapping_factor', 0.1)
+        self.paramiter_swapping_factor = kwargs.get(
+            'paramiter_swapping_factor', kwargs.get('block_swap_factor', 0.1)
+        )
+        # expose new names for ui/config readability
+        self.block_swap = self.do_paramiter_swapping
+        self.block_swap_factor = self.paramiter_swapping_factor
         # bypass the guidance embedding for training. For open flux with guidance embedding
         self.bypass_guidance_embedding = kwargs.get('bypass_guidance_embedding', False)
         

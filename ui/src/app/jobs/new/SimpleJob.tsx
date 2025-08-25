@@ -506,6 +506,29 @@ export default function SimpleJob({
                     }}
                   />
                 </FormGroup>
+                <FormGroup label="Block Swapping" className="pt-2">
+                  <Checkbox
+                    label="Enable Block Swapping"
+                    checked={jobConfig.config.process[0].train.block_swap || false}
+                    docKey={'train.block_swap'}
+                    onChange={value => setJobConfig(value, 'config.process[0].train.block_swap')}
+                  />
+                  {jobConfig.config.process[0].train.block_swap && (
+                    <NumberInput
+                      label="Block Swap Factor"
+                      className="pt-2"
+                      value={jobConfig.config.process[0].train.block_swap_factor as number}
+                      onChange={value =>
+                        setJobConfig(value, 'config.process[0].train.block_swap_factor')
+                      }
+                      placeholder="eg. 0.1"
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      docKey={'train.block_swap_factor'}
+                    />
+                  )}
+                </FormGroup>
               </div>
               <div>
                 <FormGroup label="Regularization">
