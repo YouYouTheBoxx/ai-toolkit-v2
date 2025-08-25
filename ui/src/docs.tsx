@@ -125,6 +125,24 @@ const docs: { [key: string]: ConfigDoc } = {
       </>
     ),
   },
+  'train.block_swap': {
+    title: 'Enable Block Swapping',
+    description: (
+      <>
+        When enabled, only a portion of LoRA parameters are active and trained at any given step. This reduces VRAM
+        usage by swapping different blocks of the network in and out during training.
+      </>
+    ),
+  },
+  'train.block_swap_factor': {
+    title: 'Block Swap Factor',
+    description: (
+      <>
+        The fraction of parameters kept active when block swapping is enabled. A value of 0.1 means roughly ten percent
+        of parameters are trained per swap cycle.
+      </>
+    ),
+  },
   'model.multistage': {
     title: 'Stages to Train',
     description: (

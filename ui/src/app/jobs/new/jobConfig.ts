@@ -69,6 +69,8 @@ export const defaultJobConfig: JobConfig = {
           },
           unload_text_encoder: false,
           cache_text_embeddings: false,
+          block_swap: false,
+          block_swap_factor: 0.1,
           lr: 0.0001,
           ema_config: {
             use_ema: false,

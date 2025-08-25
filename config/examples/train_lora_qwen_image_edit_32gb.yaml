@@ -48,6 +48,9 @@ config:
         noise_scheduler: "flowmatch" # for training only
         optimizer: "adamw8bit"
         lr: 1e-4
+        # enable block swapping to reduce vram usage
+        block_swap: true
+        block_swap_factor: 0.1
         # uncomment this to skip the pre training sample
 #        skip_first_sample: true
         # uncomment to completely disable sampling

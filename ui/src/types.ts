@@ -113,6 +113,8 @@ export interface TrainConfig {
   dtype: string;
   unload_text_encoder: boolean;
   cache_text_embeddings: boolean;
+  block_swap: boolean;
+  block_swap_factor: number;
   optimizer_params: {
     weight_decay: number;
   };
