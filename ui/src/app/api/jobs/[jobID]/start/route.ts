@@ -62,6 +62,22 @@ export async function GET(request: NextRequest, { params }: { params: { jobID: s
     return NextResponse.json({ queued: true });
   }
 
+  // if any job is currently running or an earlier job is queued, place this job in queue
+  const runningJob = await prisma.job.findFirst({
+    where: { status: 'running' },
+  });
+  const firstQueuedJob = await prisma.job.findFirst({
+    where: { status: 'queued' },
+    orderBy: { updated_at: 'asc' },
+  });
+  if (runningJob || (firstQueuedJob && firstQueuedJob.id !== jobID)) {
+    await prisma.job.update({
+      where: { id: jobID },
+      data: { status: 'queued', info: 'Waiting in queue...' },
+    });
+    return NextResponse.json({ queued: true });
+  }
+
   // update job status to 'running'
   await prisma.job.update({
     where: { id: jobID },
