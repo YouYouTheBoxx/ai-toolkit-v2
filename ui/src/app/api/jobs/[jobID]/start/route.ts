@@ -9,6 +9,17 @@ const isWindows = process.platform === 'win32';
 
 const prisma = new PrismaClient();
 
+async function startNextQueuedJob() {
+  const nextJob = await prisma.job.findFirst({
+    where: { status: 'queued' },
+    orderBy: { updated_at: 'asc' },
+  });
+  if (nextJob) {
+    // call this route again to start the next job in queue
+    await GET(new NextRequest(''), { params: { jobID: nextJob.id } });
+  }
+}
+
 export async function GET(request: NextRequest, { params }: { params: { jobID: string } }) {
   const { jobID } = await params;
 
@@ -18,6 +29,21 @@ export async function GET(request: NextRequest, { params }: { params: { jobID: s
 
   if (!job) {
     return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+  }
+  // if any job is currently running or an earlier job is queued, place this job in queue
+  const activeJob = await prisma.job.findFirst({
+    where: { status: 'running' },
+  });
+  const firstQueuedJob = await prisma.job.findFirst({
+    where: { status: 'queued' },
+    orderBy: { updated_at: 'asc' },
+  });
+  if (activeJob || (firstQueuedJob && firstQueuedJob.id !== jobID)) {
+    await prisma.job.update({
+      where: { id: jobID },
+      data: { status: 'queued', info: 'Waiting in queue...' },
+    });
+    return NextResponse.json({ queued: true });
   }
 
   // if any job is currently running or an earlier job is queued, place this job in queue
@@ -190,6 +216,8 @@ export async function GET(request: NextRequest, { params }: { params: { jobID: s
             },
           });
         }
+        // after this job ends, start the next one in queue
+        await startNextQueuedJob();
       });
 
       // Wait 30 seconds before releasing the process
