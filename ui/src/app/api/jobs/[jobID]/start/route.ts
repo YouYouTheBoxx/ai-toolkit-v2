@@ -31,15 +31,15 @@ export async function GET(request: NextRequest, { params }: { params: { jobID: s
   if (!job) {
     return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   }
-
-  // if any job is currently running or queued, place this job in queue
+  // if any job is currently running or an earlier job is queued, place this job in queue
   const activeJob = await prisma.job.findFirst({
-    where: { status: { in: ['running'] } },
+    where: { status: 'running' },
   });
-  const queuedJob = await prisma.job.findFirst({
+  const firstQueuedJob = await prisma.job.findFirst({
     where: { status: 'queued' },
+    orderBy: { updated_at: 'asc' },
   });
-  if (activeJob || queuedJob) {
+  if (activeJob || (firstQueuedJob && firstQueuedJob.id !== jobID)) {
     await prisma.job.update({
       where: { id: jobID },
       data: { status: 'queued', info: 'Waiting in queue...' },

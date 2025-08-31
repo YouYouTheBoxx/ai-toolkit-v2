@@ -9,7 +9,7 @@ interface JobsTableProps {
 }
 
 export default function JobsTable({ onlyActive = false }: JobsTableProps) {
-  const { jobs, status, refreshJobs } = useJobsList(onlyActive);
+  const { jobs, status, refreshJobs } = useJobsList(onlyActive, 5000);
   const isLoading = status === 'loading';
 
   const columns: TableColumn[] = [

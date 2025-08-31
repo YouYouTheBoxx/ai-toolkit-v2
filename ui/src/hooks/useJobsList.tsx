@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Job } from '@prisma/client';
 import { apiClient } from '@/utils/api';
 
-export default function useJobsList(onlyActive = false) {
+export default function useJobsList(onlyActive = false, reloadInterval: number | null = null) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -33,7 +33,17 @@ export default function useJobsList(onlyActive = false) {
   };
   useEffect(() => {
     refreshJobs();
-  }, []);
+
+    if (reloadInterval) {
+      const interval = setInterval(() => {
+        refreshJobs();
+      }, reloadInterval);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [reloadInterval, onlyActive]);
 
   return { jobs, setJobs, status, refreshJobs };
 }
