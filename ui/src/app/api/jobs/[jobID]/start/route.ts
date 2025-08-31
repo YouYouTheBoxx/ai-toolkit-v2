@@ -4,7 +4,6 @@ import { TOOLKIT_ROOT } from '@/paths';
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
 import { getTrainingFolder, getHFToken } from '@/server/settings';
 const isWindows = process.platform === 'win32';
 
@@ -31,6 +30,22 @@ export async function GET(request: NextRequest, { params }: { params: { jobID: s
   if (!job) {
     return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   }
+  // if any job is currently running or an earlier job is queued, place this job in queue
+  const activeJob = await prisma.job.findFirst({
+    where: { status: 'running' },
+  });
+  const firstQueuedJob = await prisma.job.findFirst({
+    where: { status: 'queued' },
+    orderBy: { updated_at: 'asc' },
+  });
+  if (activeJob || (firstQueuedJob && firstQueuedJob.id !== jobID)) {
+    await prisma.job.update({
+      where: { id: jobID },
+      data: { status: 'queued', info: 'Waiting in queue...' },
+    });
+    return NextResponse.json({ queued: true });
+  }
+
   // if any job is currently running or an earlier job is queued, place this job in queue
   const activeJob = await prisma.job.findFirst({
     where: { status: 'running' },
