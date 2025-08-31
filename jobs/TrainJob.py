@@ -34,7 +34,6 @@ class TrainJob(BaseJob):
         # loads the processes from the config
         self.load_processes(process_dict)
 
-
     def run(self):
         super().run()
         print("")

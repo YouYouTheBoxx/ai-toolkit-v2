@@ -9,7 +9,7 @@ interface JobsTableProps {
 }
 
 export default function JobsTable({ onlyActive = false }: JobsTableProps) {
-  const { jobs, status, refreshJobs } = useJobsList(onlyActive);
+  const { jobs, status, refreshJobs } = useJobsList(onlyActive, 5000);
   const isLoading = status === 'loading';
 
   const columns: TableColumn[] = [
@@ -56,6 +56,7 @@ export default function JobsTable({ onlyActive = false }: JobsTableProps) {
         if (row.status === 'completed') statusClass = 'text-green-400';
         if (row.status === 'failed') statusClass = 'text-red-400';
         if (row.status === 'running') statusClass = 'text-blue-400';
+        if (row.status === 'queued') statusClass = 'text-yellow-400';
 
         return <span className={statusClass}>{row.status}</span>;
       },
