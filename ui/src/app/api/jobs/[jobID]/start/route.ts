@@ -31,7 +31,6 @@ export async function GET(request: NextRequest, { params }: { params: { jobID: s
   if (!job) {
     return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   }
-
   // if any job is currently running or an earlier job is queued, place this job in queue
   const activeJob = await prisma.job.findFirst({
     where: { status: 'running' },
